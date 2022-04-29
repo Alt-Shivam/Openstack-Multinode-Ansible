@@ -1,0 +1,43 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+   - name: Install git
+     apt:
+       name: git
+       state: present
+       update_cache: true
+
+   - name: Install curl
+     apt:
+       name: curl
+       state: present
+       update_cache: true
+
+   - name: Install make
+     apt:
+       name: make
+       state: present
+       update_cache: true
+
+   - name: Clone openstack-helm
+     git:
+       repo: https://github.com/openstack/openstack-helm.git
+       dest: /home/ubuntu/openstack-helm/
+       clone: yes
+       update: yes
+
+   - name: Clone openstack-helm-infra
+     git:
+       repo: https://github.com/openstack/openstack-helm-infra.git
+       dest: /home/ubuntu/openstack-helm-infra/
+       clone: yes
+       update: yes
+
+   - name: Clone Main Repo
+     git:
+       repo: https://github.com/Alt-Shivam/Openstack-Multinode-Ansible.git
+       dest: /home/ubuntu/Openstack-Multinode-Ansible/
+       clone: yes
+       update: yes
+

@@ -1,0 +1,69 @@
+---
+- hosts: control_plane
+  become: yes
+  tasks:
+   - name: net_default_iface
+     command: chdir=/home/ubuntu/Openstack-Multinode-Ansible/Script/ ./net.sh
+     ignore_errors: yes
+
+   - name: "Changing /etc/hosts file"
+     become: yes
+     become_user: root
+     tags: Changing file
+     lineinfile:
+       path: /etc/hosts
+       regexp: "127.0.0.1 localhost" 
+       state: absent
+       backup: yes
+
+   - name: inserting host
+     lineinfile:
+       path: /etc/hosts
+       line: '127.0.1.1   ubuntu'
+       insertbefore: BOF
+
+   - name: inserting host
+     lineinfile:
+       path: /etc/hosts
+       line: '127.0.0.1   localhost.localdomain localhost'
+       insertbefore: BOF
+
+   - name: Delete K8-kubeadm.sh
+     command: chdir=/home/ubuntu/openstack-helm-infra/tools/gate/ rm -R deploy-k8s-kubeadm.sh
+     ignore_errors: yes
+
+   - name: Creating a new K8-kubeadm.sh file
+     command: chdir=/home/ubuntu/Openstack-Multinode-Ansible/Script/ cp deploy-k8s-kubeadm.sh ../openstack-helm-infra/tools/gate/
+     ignore_errors: yes
+
+   - name: Delete start.sh
+     command: chdir=/home/ubuntu/openstack-helm-infra/tools/gate/devel/ rm -R start.sh
+     ignore_errors: yes
+
+   - name: Creating a new start.sh file
+     command: chdir=/home/ubuntu/Openstack-Multinode-Ansible/Script/ cp deploy-k8s-kubeadm.sh ../openstack-helm-infra/tools/gate/devel/
+     ignore_errors: yes
+
+   - name: Host setup
+     command: chdir=/home/ubuntu/openstack-helm-infra/ make dev-deploy setup-host
+     ignore_errors: yes
+
+   - name: install pyaml
+     command: sudo -H pip3 install --ignore-installed PyYAML
+
+   - name: inserting host
+     lineinfile:
+       path: /etc/sysctl.conf
+       line: 'net.bridge.bridge-nf-call-iptables = 1'
+       insertbefore: BOF
+
+   - name: Changing sysctl.conf
+     command: sudo modprobe br_netfilter
+
+   - name: Changing sysctl.conf
+     command: sudo sysctl -p /etc/sysctl.conf
+
+   - name: Retrying to setup host
+     command: chdir=/home/ubuntu/openstack-helm-infra/ make dev-deploy setup-host
+     ignore_errors: yes
+
