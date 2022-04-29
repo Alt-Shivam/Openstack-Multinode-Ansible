@@ -1,7 +1,11 @@
 ---
-- hosts: control_plane
+- hosts: [control_plane]
   become: yes
   tasks:
+   - name: net_default_iface
+     command: chdir=/home/ubuntu/Openstack-Multinode-Ansible/Script/ sudo chmod 777 net.sh
+     ignore_errors: yes
+
    - name: net_default_iface
      command: chdir=/home/ubuntu/Openstack-Multinode-Ansible/Script/ ./net.sh
      ignore_errors: yes
